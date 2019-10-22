@@ -1,0 +1,17 @@
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+#root {
+  width: 100%;
+  height: 100%;
+  background-color: #1b3348;
+  padding-top: 20px;
+}
+#space {
+  width: 80%;
+  height: 80%;
+  border: 10px solid;
+  margin: 0 auto;
+}
