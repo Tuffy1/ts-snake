@@ -1,12 +1,7 @@
 import Snake from "./snake";
 import Food from "./food";
 import CONFIG from "./game.config";
-import {
-  getIntersectionBetweenRectAndRect,
-  getIntersectionBetweenRectAndSegment,
-  isSamePoint,
-  isCoincide
-} from "./utils/math";
+import { getIntersectionBetweenRectAndRect, isCoincide } from "./utils/math";
 
 export default class Game {
   /**Properties */
@@ -48,13 +43,6 @@ export default class Game {
     return !!(intersections && intersections.length);
   }
   private isSnakeTouchSelf(): boolean {
-    const snakeHead = this._snake.bodyParts[0];
-    const snakeRect = {
-      x: snakeHead.X,
-      y: snakeHead.Y,
-      width: CONFIG.LATTICE_SIZE,
-      height: CONFIG.LATTICE_SIZE
-    };
     const snakeCrown = this._snake.snakeCrown;
     for (let i = 2; i < this._snake.bodyParts.length; i += 1) {
       const part = this._snake.bodyParts[i];
@@ -74,6 +62,22 @@ export default class Game {
       }
     }
     return false;
+  }
+  private isSnakeTouchWall(): boolean {
+    const snakeCrown = this._snake.snakeCrown;
+    const wall = document.getElementById("wall");
+    const wallEleArr = wall.getElementsByTagName("line");
+    for (let i = 0; i < wallEleArr.length; i += 1) {
+      const ele = wallEleArr[i];
+      const elePoint1 = {
+        x: ele.getAttribute("x1"),
+        y: ele.getAttribute("y1")
+      };
+      const elePoint2 = {
+        x: ele.getAttribute("x2"),
+        y: ele.getAttribute("y2")
+      };
+    }
   }
   private clearCanvas() {
     document.getElementById("snake").innerHTML = "";
