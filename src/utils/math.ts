@@ -38,10 +38,39 @@ function getLineByPoints(p1: P, p2: P): LineParam {
  * @param p3 需要进行判断的点
  */
 function isPointOnSegment(p1: P, p2: P, p3: P): boolean {
-  if ((p3.x > p1.x && p3.x < p2.x) || (p3.x < p1.x && p3.x > p2.x)) {
+  const minX = Math.min(p1.x, p2.x);
+  const maxX = Math.max(p1.x, p2.x);
+  const minY = Math.min(p1.y, p2.y);
+  const maxY = Math.max(p1.y, p2.y);
+  if (p3.x >= minX && p3.x <= maxX && p3.y >= minY && p3.y <= maxY) {
     return true;
   }
   return false;
+}
+/**
+ * 通过Rect格式的矩形得到四个点连成的四条线段端点数组
+ * @param rect
+ */
+function getRectData(rect: Rect) {
+  const pointArr = [
+    {
+      rectP1: { x: rect.x, y: rect.y },
+      rectP2: { x: rect.x + rect.width, y: rect.y }
+    },
+    {
+      rectP1: { x: rect.x, y: rect.y },
+      rectP2: { x: rect.x, y: rect.y + rect.height }
+    },
+    {
+      rectP1: { x: rect.x, y: rect.y + rect.height },
+      rectP2: { x: rect.x + rect.width, y: rect.y + rect.height }
+    },
+    {
+      rectP1: { x: rect.x + rect.width, y: rect.y },
+      rectP2: { x: rect.x + rect.width, y: rect.y + rect.height }
+    }
+  ];
+  return pointArr;
 }
 /**
  * 得到两直线的交点
@@ -91,29 +120,12 @@ function getIntersectionBetweenSegments(p1: P, p2: P, p3: P, p4: P): P | null {
  * @param p1 线段第一个端点
  * @param p2 线段第二个端点
  */
-function getIntersectionBetweenRectAndSegment(
+export function getIntersectionBetweenRectAndSegment(
   rect: Rect,
   p1: P,
   p2: P
 ): P[] | null {
-  const pointArr = [
-    {
-      rectP1: { x: rect.x, y: rect.y },
-      rectP2: { x: rect.x + rect.width, y: rect.y }
-    },
-    {
-      rectP1: { x: rect.x, y: rect.y },
-      rectP2: { x: rect.x, y: rect.y + rect.height }
-    },
-    {
-      rectP1: { x: rect.x, y: rect.y + rect.height },
-      rectP2: { x: rect.x + rect.width, y: rect.y + rect.height }
-    },
-    {
-      rectP1: { x: rect.x + rect.width, y: rect.y },
-      rectP2: { x: rect.x + rect.width, y: rect.y + rect.height }
-    }
-  ];
+  const pointArr = getRectData(rect);
   const intersectionArr: P[] = [];
   for (let i = 0; i < pointArr.length; i += 1) {
     const rectP1: P = pointArr[i].rectP1;
@@ -127,4 +139,66 @@ function getIntersectionBetweenRectAndSegment(
     return null;
   }
   return intersectionArr;
+}
+/**
+ * 得到两个矩形的交点
+ * @param rect1 第一个矩形数据
+ * @param rect2 第二个矩形数据
+ */
+export function getIntersectionBetweenRectAndRect(
+  rect1: Rect,
+  rect2: Rect
+): P[] | null {
+  const pointArr = getRectData(rect1);
+  let intersectionArr: P[] = [];
+  for (let i = 0; i < pointArr.length; i += 1) {
+    const p = pointArr[i];
+    const intersections = getIntersectionBetweenRectAndSegment(
+      rect2,
+      p.rectP1,
+      p.rectP2
+    );
+    if (intersections && intersections.length) {
+      intersectionArr = intersectionArr.concat(intersections);
+    }
+  }
+  if (intersectionArr.length > 0) {
+    return intersectionArr;
+  } else {
+    return null;
+  }
+}
+export function isPointOnRectEdge(rect: Rect, p: P): boolean {
+  const rectEdgeArr = getRectData(rect);
+  for (let i = 0; i < rectEdgeArr.length; i += 1) {
+    const edge = rectEdgeArr[i];
+    const lineParam = getLineByPoints(edge.rectP1, edge.rectP2);
+    if (lineParam.A * p.x + lineParam.B * p.y + lineParam.C === 0) {
+      if (isPointOnSegment(edge.rectP1, edge.rectP2, p)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+export function isSamePoint(p1, p2): boolean {
+  return p1.x === p2.x && p1.y === p2.y;
+}
+/**
+ * 矩形是否存在边与线段完全重合
+ * @param rect 矩形
+ * @param p1 线段第一个端点
+ * @param p2 线段第二个端点
+ */
+export function isCoincide(rect: Rect, p1: P, p2: P): boolean {
+  const rectParam = getRectData(rect);
+  for (let i = 0; i < rectParam.length; i += 1) {
+    const edge = rectParam[i];
+    if (isSamePoint(edge.rectP1, p1) && isSamePoint(edge.rectP2, p2)) {
+      return true;
+    } else if (isSamePoint(edge.rectP2, p1) && isSamePoint(edge.rectP1, p2)) {
+      return true;
+    }
+  }
+  return false;
 }

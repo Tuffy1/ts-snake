@@ -10,16 +10,20 @@ class KeyBoard {
   /**Constructor */
   constructor() {
     document.addEventListener("keydown", e => {
-      this.keyPress(e);
+      this.keyDown(e);
     });
   }
   /**Private Methods */
-  private keyPress(e: KeyboardEvent) {
+  private keyDown(e: KeyboardEvent) {
     e.preventDefault();
     this._keyPress = {};
     this._keyPress[Direction[e.keyCode]] = true;
   }
   /**Public Methods */
+  set keyPress(direction: string) {
+    this._keyPress = {};
+    this._keyPress[direction] = true;
+  }
   public isPress(direction: string): boolean {
     return !!this._keyPress[direction];
   }

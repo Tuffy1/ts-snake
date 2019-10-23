@@ -15,3 +15,25 @@ body {
   border: 10px solid;
   margin: 0 auto;
 }
+
+#game {
+  position: absolute;
+  top: calc(50% - 200px);
+  left: calc(50% - 250px);
+  color: #fff;
+  font-size: 96px;
+  display: none;
+}
+
+#restart {
+  text-align: center;
+}
+
+#restart button {
+  padding: 17px 26px;
+  font-size: 24px;
+  border-radius: 4px;
+  background-color: #80b380;
+  border: 0;
+  cursor: pointer;
+}
