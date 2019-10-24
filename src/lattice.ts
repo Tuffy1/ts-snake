@@ -1,4 +1,5 @@
 import CONFIG from "./game.config";
+import { setAttr } from "./utils/common";
 export default class Lattice {
   /**Properties */
   private _x: number; // 格子左上角点的x与y
@@ -8,7 +9,6 @@ export default class Lattice {
     this._x = x;
     this._y = y;
   }
-  /**Private Methods */
   /**Public Methods */
   set X(x: number) {
     this._x = x;
@@ -40,12 +40,14 @@ export default class Lattice {
   }
   public drawLattice(name: string, latticeSize: number, color: string) {
     const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    rect.setAttribute("x", this._x + "");
-    rect.setAttribute("y", this._y + "");
-    rect.setAttribute("width", latticeSize + "");
-    rect.setAttribute("height", latticeSize + "");
-    rect.setAttribute("fill", color);
-    rect.setAttribute("name", name);
+    setAttr(rect, {
+      x: this._x + "",
+      y: this._y + "",
+      width: latticeSize + "",
+      height: latticeSize + "",
+      fill: color,
+      name: name
+    });
     if (name === "food") {
       document.getElementById("food").appendChild(rect);
     } else {

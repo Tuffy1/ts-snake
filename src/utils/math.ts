@@ -1,6 +1,3 @@
-export function getRandom(min: number, max: number): number {
-  return parseInt(Math.random() * (max - min + 1) + max + "", 10);
-}
 interface P {
   x: number;
   y: number;
@@ -15,6 +12,10 @@ interface Rect {
   y: number;
   width: number;
   height: number;
+}
+function getRandom(min: number, max: number): number {
+  const c = max - min + 1;
+  return Math.floor(Math.random() * c + min);
 }
 /**
  * 通过两点得到直线一般式的参数 A, B, C
@@ -120,7 +121,7 @@ function getIntersectionBetweenSegments(p1: P, p2: P, p3: P, p4: P): P | null {
  * @param p1 线段第一个端点
  * @param p2 线段第二个端点
  */
-export function getIntersectionBetweenRectAndSegment(
+function getIntersectionBetweenRectAndSegment(
   rect: Rect,
   p1: P,
   p2: P
@@ -145,7 +146,7 @@ export function getIntersectionBetweenRectAndSegment(
  * @param rect1 第一个矩形数据
  * @param rect2 第二个矩形数据
  */
-export function getIntersectionBetweenRectAndRect(
+function getIntersectionBetweenRectAndRect(
   rect1: Rect,
   rect2: Rect
 ): P[] | null {
@@ -168,7 +169,7 @@ export function getIntersectionBetweenRectAndRect(
     return null;
   }
 }
-export function isPointOnRectEdge(rect: Rect, p: P): boolean {
+function isPointOnRectEdge(rect: Rect, p: P): boolean {
   const rectEdgeArr = getRectData(rect);
   for (let i = 0; i < rectEdgeArr.length; i += 1) {
     const edge = rectEdgeArr[i];
@@ -181,24 +182,74 @@ export function isPointOnRectEdge(rect: Rect, p: P): boolean {
   }
   return false;
 }
-export function isSamePoint(p1, p2): boolean {
+function isSamePoint(p1: P, p2: P): boolean {
   return p1.x === p2.x && p1.y === p2.y;
 }
 /**
- * 矩形是否存在边与线段完全重合
+ * 矩形是否存在边与线段重合
  * @param rect 矩形
  * @param p1 线段第一个端点
  * @param p2 线段第二个端点
  */
-export function isCoincide(rect: Rect, p1: P, p2: P): boolean {
+function isCoincide(rect: Rect, p1: P, p2: P): boolean {
   const rectParam = getRectData(rect);
   for (let i = 0; i < rectParam.length; i += 1) {
     const edge = rectParam[i];
-    if (isSamePoint(edge.rectP1, p1) && isSamePoint(edge.rectP2, p2)) {
-      return true;
-    } else if (isSamePoint(edge.rectP2, p1) && isSamePoint(edge.rectP1, p2)) {
+    const line1: LineParam = getLineByPoints(edge.rectP1, edge.rectP2);
+    const line2: LineParam = getLineByPoints(p1, p2);
+    // (A2 B1 - A1 B2) === 0 如果等于0, 就是两条直线平行
+    // A * x + B * y + C === 0 意味着点在直线上，两个条件结合即两直线重合
+    if (
+      line2.A * line1.B - line1.A * line2.B === 0 &&
+      line1.A * p2.x + line1.B * p2.y + line1.C === 0
+    ) {
+      if (
+        isPointOnSegment(edge.rectP1, edge.rectP2, p1) ||
+        isPointOnSegment(edge.rectP1, edge.rectP2, p2) ||
+        isPointOnSegment(p1, p2, edge.rectP1) ||
+        isPointOnSegment(p1, p2, edge.rectP2)
+      ) {
+        // 某个线段端点在另一个线段上，意味着两线段有重合部分
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * 线段是否与另一线段存在重合
+ * @param p1 线段1第一个端点
+ * @param p2 线段1第二个端点
+ * @param p2 线段2第一个端点
+ * @param p3 线段2第二个端点
+ */
+function isSegmentCoincide(p1: P, p2: P, p3: P, p4: P): boolean {
+  const line1: LineParam = getLineByPoints(p1, p2);
+  const line2: LineParam = getLineByPoints(p3, p4);
+  // (A2 B1 - A1 B2) === 0 如果等于0, 就是两条直线平行
+  // A * x + B * y + C === 0 意味着点在直线上，两个条件结合即两直线重合
+  if (
+    line2.A * line1.B - line1.A * line2.B === 0 &&
+    line1.A * p3.x + line1.B * p3.y + line1.C === 0
+  ) {
+    if (
+      isPointOnSegment(p1, p2, p3) ||
+      isPointOnSegment(p1, p2, p4) ||
+      isPointOnSegment(p3, p4, p1) ||
+      isPointOnSegment(p3, p4, p2)
+    ) {
+      // 某个线段端点在另一个线段上，意味着两线段有重合部分
       return true;
     }
   }
   return false;
 }
+
+export {
+  getRandom,
+  getIntersectionBetweenRectAndSegment,
+  getIntersectionBetweenRectAndRect,
+  isCoincide,
+  isSegmentCoincide
+};

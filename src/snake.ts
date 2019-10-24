@@ -1,6 +1,7 @@
 import Lattice from "./lattice";
 import CONFIG from "./game.config";
 import keyboard from "./keyboard";
+import { setAttr } from "./utils/common";
 enum Direction {
   Up,
   Down,
@@ -104,13 +105,17 @@ export default class Snake {
       this._bodyParts[i].X = this._bodyParts[i - 1].X;
       this._bodyParts[i].Y = this._bodyParts[i - 1].Y;
       partEle = document.getElementsByName(`snake_part_${i}`)[0];
-      partEle.setAttribute("x", this._bodyParts[i].X + "");
-      partEle.setAttribute("y", this._bodyParts[i].Y + "");
+      setAttr(partEle, {
+        x: this._bodyParts[i].X + "",
+        y: this._bodyParts[i].Y + ""
+      });
     }
     this.headMove();
     partEle = document.getElementsByName(`snake_part_0`)[0];
-    partEle.setAttribute("x", this._bodyParts[0].X + "");
-    partEle.setAttribute("y", this._bodyParts[0].Y + "");
+    setAttr(partEle, {
+      x: this._bodyParts[0].X + "",
+      y: this._bodyParts[0].Y + ""
+    });
   }
   /**
    * 蛇吃了食物长大：尾巴变长的方向主要看蛇身体的最后两截方向
